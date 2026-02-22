@@ -9,8 +9,41 @@ datasource db {
   provider = "postgresql"
 }
 
+enum Genre{
+  ACTION
+  COMEDY
+  DRAMA
+  HORROR
+  SCI_FI
+}
+
 model User {
   id        String   @id @default(uuid())
   email     String   @unique
   name      String?
+
+  reviews   Review[]
 } 
+
+model Movie {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  year        Int
+  genre       Genre
+  createdAt   DateTime @default(now())
+
+  reviews Review[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  movieId   String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  movie Movie @relation(fields: [movieId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
