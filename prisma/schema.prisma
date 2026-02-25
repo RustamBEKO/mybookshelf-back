@@ -34,6 +34,10 @@ model Movie {
   createdAt   DateTime @default(now())
 
   reviews Review[]
+
+  @@index([title])
+  @@index([year])
+  @@index([title, year])
 }
 
 model Review {

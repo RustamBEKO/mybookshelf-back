@@ -4,9 +4,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class ReviewsService {
-   constructor(private readonly prisma: PrismaService) {}
-  
-   async create(dto: CreateReviewDto) {
+  constructor(private readonly prisma: PrismaService) {}
+
+  async create(dto: CreateReviewDto) {
     return await this.prisma.review.create({ data: dto });
   }
 
@@ -19,7 +19,10 @@ export class ReviewsService {
   }
 
   async findByMovieId(movieId: string) {
-    return await this.prisma.review.findMany({ where: { movieId }, include: { user: true, movie: true } });
+    return await this.prisma.review.findMany({
+      where: { movieId },
+      include: { user: true, movie: true },
+    });
   }
 
   async remove(id: string) {
