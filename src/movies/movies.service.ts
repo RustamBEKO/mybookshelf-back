@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -59,9 +59,11 @@ export class MoviesService {
     };
   }
 
-  async findOne(id: string) {
-    return await this.prisma.movie.findUnique({ where: { id } });
-  }
+ async findOne(id: string) {
+  const movie = await this.prisma.movie.findUnique({ where: { id } });
+  if (!movie) throw new NotFoundException(`Movie ${id} not found`);
+  return movie;
+}
 
   async findOneWithReviews(id: string) {
     return this.prisma.movie.findUnique({
