@@ -9,6 +9,12 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  // Это разрешает запросы с Next.js фронтенда
+  app.enableCors({
+    origin: 'http://localhost:3001', // адрес Next.js
+    credentials: true, // ОБЯЗАТЕЛЬНО — иначе cookies не работают
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -18,7 +24,7 @@ async function bootstrap() {
   );
 
   setupSwagger(app);
-  
-  await app.listen(3000);
+
+  await app.listen(3000); // NestJS остаётся на 3000 порту
 }
 bootstrap();
