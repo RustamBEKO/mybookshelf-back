@@ -20,7 +20,7 @@ RUN npm ci
 
 # Prisma 7: генерируем TypeScript-клиент в src/generated/prisma
 # ВАЖНО: делаем это ДО копирования src/ чтобы не потерять при COPY
-RUN npx prisma generate
+RUN npx prisma generate --config prisma.config.ts
 
 # Копируем исходники и собираем
 COPY src ./src
