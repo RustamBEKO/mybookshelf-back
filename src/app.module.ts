@@ -12,9 +12,6 @@ import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from './auth/guards/roles.guard';
 import { JwtGuard } from './auth/guards/auth.guard';
 
-import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-
 import { join } from 'path';
 import { FileModule } from './file/file.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
@@ -22,15 +19,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: join(process.cwd(), 'schema.gql'), // убрать 'src/' // code-first approach
-      playground: true,
-      sortSchema: true, // enables the GraphQL playground at /graphql
-    }),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
-
       serveRoot: '/static', // files will be served at /static/filename
     }),
     PrismaModule,

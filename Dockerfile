@@ -18,13 +18,14 @@ COPY nest-cli.json ./
 # Устанавливаем ВСЕ зависимости (включая dev — нужны для сборки)
 RUN npm ci
 
-# Prisma 7: генерируем TypeScript-клиент в src/generated/prisma
-# ВАЖНО: делаем это ДО копирования src/ чтобы не потерять при COPY
-RUN npx prisma generate --config prisma.config.ts
-
-# Копируем исходники и собираем
+# Копируем исходники (включая src/generated/prisma если есть)
 COPY src ./src
 
+# Prisma 7: генерируем TypeScript-клиент в src/generated/prisma
+# Делаем ПОСЛЕ COPY src, чтобы гарантированно иметь свежие файлы
+RUN npx prisma generate --config prisma.config.ts
+
+# Собираем NestJS приложение
 RUN npm run build
 
 # ============================================================
@@ -53,4 +54,4 @@ RUN mkdir -p uploads
 EXPOSE 3000
 
 # Сначала применяем миграции, потом стартуем приложение
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
+CMD ["sh", "-c", "npx prisma migrate deploy --config prisma.config.ts && node dist/main"]
