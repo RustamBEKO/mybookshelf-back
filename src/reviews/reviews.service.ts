@@ -21,6 +21,14 @@ export class ReviewsService {
         movieId: dto.movieId,
         userId,
       },
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
     });
   }
 
