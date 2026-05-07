@@ -37,10 +37,10 @@ export class ReviewsController {
     return this.reviewsService.findAll();
   }
 
-  @ApiOperation({ summary: 'Получение отзывов по ID фильма' })
-  @Get('movie/:movieId')
-  findByMovieId(@Param('movieId') movieId: string) {
-    return this.reviewsService.findByMovieId(movieId);
+  @ApiOperation({ summary: 'Получение отзывов по ID книги' })
+  @Get('book/:bookId')
+  findByBookId(@Param('bookId') bookId: string) {
+    return this.reviewsService.findByBookId(bookId);
   }
 
   @ApiOperation({ summary: 'Получение отзыва по ID' })

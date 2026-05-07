@@ -5,12 +5,12 @@ services:
   # ── PostgreSQL ────────────────────────────────────────────────────
   postgres:
     image: postgres:16-alpine
-    container_name: cinevault_db
+    container_name: mybookshelf_db
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: movies
+      POSTGRES_DB: books
     ports:
       - '5432:5432'
     volumes:
@@ -26,13 +26,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: builder        # use builder stage for dev (has devDeps)
-    container_name: cinevault_app
+      target: builder # use builder stage for dev (has devDeps)
+    container_name: mybookshelf_app
     restart: unless-stopped
     ports:
       - '3000:3000'
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/movies?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/books?schema=public
       JWT_SECRET: local_dev_secret_replace_in_prod
       JWT_ACCESS_TOKEN_TTL: 3h
       JWT_REFRESH_TOKEN_TTL: 1d
@@ -49,7 +49,7 @@ services:
     command: >
       sh -c "npx prisma migrate deploy --config prisma.config.ts && npm run start:dev"
     volumes:
-      - ./src:/app/src           # hot reload
+      - ./src:/app/src # hot reload
       - ./prisma:/app/prisma
 
 volumes:

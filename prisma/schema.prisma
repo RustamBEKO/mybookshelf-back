@@ -35,10 +35,11 @@ model User {
   reviews   Review[]
 }
 
-model Movie {
+model Book {
   id          String   @id @default(uuid())
   title       String
   description String?
+  author     String?
   year        Int
   genre       Genre
   posterUrl   String?
@@ -55,10 +56,10 @@ model Review {
   id        String   @id @default(uuid())
   rating    Int
   comment   String?
-  movieId   String
+  bookId    String
   userId    String
   createdAt DateTime @default(now())
 
-  movie Movie @relation(fields: [movieId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  book Book  @relation(fields: [bookId], references: [id])
+  user User  @relation(fields: [userId], references: [id])
 }

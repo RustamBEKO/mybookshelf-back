@@ -21,7 +21,7 @@ export class ReviewsService {
       data: {
         rating: dto.rating,
         comment: dto.comment,
-        movieId: dto.movieId,
+        bookId: dto.bookId,
         userId,
       },
       include: {
@@ -32,7 +32,7 @@ export class ReviewsService {
             email: true, // 👈 нужен email для уведомления
           },
         },
-        movie: {
+        book: {
           select: {
             id: true,
             title: true,
@@ -45,7 +45,7 @@ export class ReviewsService {
     this.notifications.sendReviewNotification({
       userEmail: review.user.email,
       userName: review.user.name,
-      movieTitle: review.movie.title,
+      movieTitle: review.book.title,
       rating: review.rating,
       comment: review.comment ?? undefined,
     });
@@ -57,7 +57,7 @@ export class ReviewsService {
     return await this.prisma.review.findMany({
       include: {
         user: { select: { id: true, name: true } },
-        movie: { select: { id: true, title: true } },
+        book: { select: { id: true, title: true } },
       },
     });
   }
@@ -66,12 +66,12 @@ export class ReviewsService {
     return await this.prisma.review.findUnique({ where: { id } });
   }
 
-  async findByMovieId(movieId: string) {
+  async findByBookId(bookId: string) {
     return await this.prisma.review.findMany({
-      where: { movieId },
+      where: { bookId },
       include: {
         user: { select: { id: true, name: true } },
-        movie: { select: { id: true, title: true } },
+        book: { select: { id: true, title: true } },
       },
     });
   }

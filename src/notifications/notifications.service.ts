@@ -62,7 +62,7 @@ export class NotificationsService {
         body: JSON.stringify({
           userEmail: data.userEmail,
           userName: data.userName,
-          movieTitle: data.movieTitle,
+          bookTitle: data.movieTitle,
           rating: data.rating,
           comment: data.comment ?? '',
           event: 'review_created',

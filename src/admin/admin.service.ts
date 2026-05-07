@@ -11,30 +11,30 @@ export class AdminService {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
 
     const [
-      totalMovies,
+      totalBooks,
       totalUsers,
       totalReviews,
-      moviesByGenre,
+      booksByGenre,
       reviewsThisMonth,
       reviewsLastMonth,
       usersThisMonth,
-      moviesThisMonth,
-      recentMovies,
+      booksThisMonth,
+      recentBooks,
       recentUsers,
-      topRatedMovies,
+      topRatedBooks,
       avgRatingResult,
     ] = await Promise.all([
-      this.prisma.movie.count(),
+      this.prisma.book.count(),
       this.prisma.user.count(),
       this.prisma.review.count(),
-      this.prisma.movie.groupBy({ by: ['genre'], _count: { genre: true } }),
+      this.prisma.book.groupBy({ by: ['genre'], _count: { genre: true } }),
       this.prisma.review.count({ where: { createdAt: { gte: startOfMonth } } }),
       this.prisma.review.count({
         where: { createdAt: { gte: startOfLastMonth, lt: startOfMonth } },
       }),
       this.prisma.user.count({ where: { createdAt: { gte: startOfMonth } } }),
-      this.prisma.movie.count({ where: { createdAt: { gte: startOfMonth } } }),
-      this.prisma.movie.findMany({
+      this.prisma.book.count({ where: { createdAt: { gte: startOfMonth } } }),
+      this.prisma.book.findMany({
         take: 5,
         orderBy: { createdAt: 'desc' },
         include: { _count: { select: { reviews: true } } },
@@ -50,7 +50,7 @@ export class AdminService {
           createdAt: true,
         },
       }),
-      this.prisma.movie.findMany({
+      this.prisma.book.findMany({
         take: 10,
         include: {
           reviews: { select: { rating: true } },
@@ -61,19 +61,19 @@ export class AdminService {
       this.prisma.review.aggregate({ _avg: { rating: true } }),
     ]);
 
-    const topRated = topRatedMovies
-      .map((m) => ({
-        id: m.id,
-        title: m.title,
-        genre: m.genre,
-        year: m.year,
-        posterUrl: (m as any).posterUrl,
-        reviewCount: m._count.reviews,
+    const topRated = topRatedBooks
+      .map((b) => ({
+        id: b.id,
+        title: b.title,
+        genre: b.genre,
+        year: b.year,
+        posterUrl: (b as any).posterUrl,
+        reviewCount: b._count.reviews,
         avgRating:
-          m.reviews.length > 0
+          b.reviews.length > 0
             ? Math.round(
-                (m.reviews.reduce((s, r) => s + r.rating, 0) /
-                  m.reviews.length) *
+                (b.reviews.reduce((s, r) => s + r.rating, 0) /
+                  b.reviews.length) *
                   10,
               ) / 10
             : 0,
@@ -83,7 +83,7 @@ export class AdminService {
 
     return {
       overview: {
-        totalMovies,
+        totalBooks,
         totalUsers,
         totalReviews,
         avgRating: Math.round((avgRatingResult._avg.rating || 0) * 10) / 10,
@@ -99,15 +99,15 @@ export class AdminService {
               ? 100
               : 0,
         newUsersThisMonth: usersThisMonth,
-        newMoviesThisMonth: moviesThisMonth,
+        newBooksThisMonth: booksThisMonth,
       },
-      moviesByGenre: moviesByGenre.map((g) => ({
+      booksByGenre: booksByGenre.map((g) => ({
         genre: g.genre,
         count: g._count.genre,
       })),
-      recentMovies,
+      recentBooks,
       recentUsers,
-      topRatedMovies: topRated,
+      topRatedBooks: topRated,
     };
   }
 }

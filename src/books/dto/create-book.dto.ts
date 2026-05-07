@@ -2,19 +2,27 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsString, IsEnum, IsInt, Min, Max, IsOptional } from 'class-validator';
 import { Genre } from 'src/generated/prisma/enums';
 
-export class CreateMovieDto {
-  @ApiProperty({ description: 'Название фильма', example: 'Inception' })
+export class CreateBookDto {
+  @ApiProperty({ description: 'Название книги', example: 'The Great Gatsby' })
   @IsString()
   title: string;
 
-  @ApiPropertyOptional({ description: 'Описание фильма' })
+  @ApiPropertyOptional({ description: 'Описание книги' })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Год выпуска', example: 2010 })
+  @ApiPropertyOptional({
+    description: 'Автор книги',
+    example: 'F. Scott Fitzgerald',
+  })
+  @IsOptional()
+  @IsString()
+  author?: string;
+
+  @ApiProperty({ description: 'Год выпуска', example: 1925 })
   @IsInt()
-  @Min(1888)
+  @Min(1000)
   @Max(new Date().getFullYear() + 5)
   year: number;
 
@@ -22,7 +30,7 @@ export class CreateMovieDto {
   @IsEnum(Genre)
   genre: Genre;
 
-  @ApiPropertyOptional({ description: 'URL постера' })
+  @ApiPropertyOptional({ description: 'URL обложки' })
   @IsOptional()
   @IsString()
   posterUrl?: string;

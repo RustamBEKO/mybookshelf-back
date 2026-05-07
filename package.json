@@ -1,7 +1,7 @@
 {
-  "name": "movie-app",
+  "name": "mybookshelf",
   "version": "0.0.1",
-  "description": "",
+  "description": "MyBookshelf - Book catalog with reviews and ratings",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

@@ -1,18 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateMovieDto } from './dto/create-movie.dto';
-import { UpdateMovieDto } from './dto/update-movie.dto';
+import { CreateBookDto } from './dto/create-book.dto';
+import { UpdateBookDto } from './dto/update-book.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { QueryMoviesDto } from './dto/query-movies.dto';
+import { QueryBooksDto } from './dto/query-books.dto';
 
 @Injectable()
-export class MoviesService {
+export class BooksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(dto: CreateMovieDto) {
-    return await this.prisma.movie.create({ data: dto });
+  async create(dto: CreateBookDto) {
+    return await this.prisma.book.create({ data: dto });
   }
 
-  async findAll(query: QueryMoviesDto) {
+  async findAll(query: QueryBooksDto) {
     const {
       page = 1,
       limit = 10,
@@ -32,8 +32,8 @@ export class MoviesService {
     const skip = (page - 1) * limit; // e.g. page 2, limit 10 → skip 10
 
     // Run data query AND count query at the same time (parallel = faster)
-    const [movies, total] = await Promise.all([
-      this.prisma.movie.findMany({
+    const [books, total] = await Promise.all([
+      this.prisma.book.findMany({
         where,
         orderBy: { [sortBy]: order },
         skip,
@@ -42,11 +42,11 @@ export class MoviesService {
           _count: { select: { reviews: true } }, // adds reviewsCount
         },
       }),
-      this.prisma.movie.count({ where }),
+      this.prisma.book.count({ where }),
     ]);
 
     return {
-      data: movies,
+      data: books,
       meta: {
         total, // total matching records
         page, // current page
@@ -59,13 +59,13 @@ export class MoviesService {
   }
 
   async findOne(id: string) {
-    const movie = await this.prisma.movie.findUnique({ where: { id } });
-    if (!movie) throw new NotFoundException(`Movie ${id} not found`);
-    return movie;
+    const book = await this.prisma.book.findUnique({ where: { id } });
+    if (!book) throw new NotFoundException(`Book ${id} not found`);
+    return book;
   }
 
   async findOneWithReviews(id: string) {
-    return this.prisma.movie.findUnique({
+    return this.prisma.book.findUnique({
       where: { id },
       select: {
         id: true,
@@ -86,11 +86,11 @@ export class MoviesService {
     });
   }
 
-  async update(id: string, dto: UpdateMovieDto) {
-    return await this.prisma.movie.update({ where: { id }, data: dto });
+  async update(id: string, dto: UpdateBookDto) {
+    return await this.prisma.book.update({ where: { id }, data: dto });
   }
 
   async remove(id: string) {
-    return await this.prisma.movie.delete({ where: { id } });
+    return await this.prisma.book.delete({ where: { id } });
   }
 }

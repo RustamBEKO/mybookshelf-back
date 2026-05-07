@@ -10,12 +10,12 @@ import {
 import { Role } from 'src/auth/enums/role.enum';
 import { Genre } from 'src/generated/prisma/enums';
 
-// Этот файл содержит E2E тесты для фильмов. Мы проверяем получение списка фильмов, получение фильма по ID, создание фильма, и удаление фильма. В каждом тесте мы используем реальную базу данных (очищаем её перед каждым тестом) и реальное Nest-приложение, чтобы максимально точно имитировать поведение в продакшене.
-describe('Movies E2E', () => {
+// Этот файл содержит E2E тесты для книг. Мы проверяем получение списка книг, получение книги по ID, создание книги, и удаление книги. В каждом тесте мы используем реальную базу данных (очищаем её перед каждым тестом) и реальное Nest-приложение, чтобы максимально точно имитировать поведение в продакшене.
+describe('Books E2E', () => {
   let userToken: string;
   let adminToken: string;
-  let movieId: string;
-  // В этих тестах мы проверяем, что список фильмов возвращается корректно, что фильтрация работает, и что авторизация требуется
+  let bookId: string;
+  // В этих тестах мы проверяем, что список книг возвращается корректно, что фильтрация работает, и что авторизация требуется
   beforeAll(async () => {
     await setupApp();
   });
@@ -23,11 +23,11 @@ describe('Movies E2E', () => {
   beforeEach(async () => {
     await cleanDatabase();
 
-    // Создадим обычного пользователя и админа, а также один фильм для тестов
+    // Создадим обычного пользователя и админа, а также одну книгу для тестов
     await registerUser('user@test.com', 'pass123', 'Regular User');
     userToken = await loginAs('user@test.com', 'pass123');
 
-    // Создаём админа и фильм от его имени, чтобы гарантировать наличие фильма в базе для тестов
+    // Создаём админа и книгу от его имени, чтобы гарантировать наличие книги в базе для тестов
     await registerUser('admin@test.com', 'pass123', 'Admin User');
     await prisma.user.update({
       where: { email: 'admin@test.com' },
@@ -35,16 +35,17 @@ describe('Movies E2E', () => {
     });
     adminToken = await loginAs('admin@test.com', 'pass123');
 
-    // Создаём фильм от имени админа, чтобы гарантировать его наличие в базе для тестов
-    const movie = await prisma.movie.create({
+    // Создаём книгу от имени админа, чтобы гарантировать её наличие в базе для тестов
+    const book = await prisma.book.create({
       data: {
-        title: 'Test Movie',
+        title: 'Test Book',
         description: 'Test Desc',
+        author: 'Test Author',
         year: 2020,
         genre: Genre.ACTION,
       },
     });
-    movieId = movie.id;
+    bookId = book.id;
   });
 
   afterAll(async () => {
@@ -52,12 +53,12 @@ describe('Movies E2E', () => {
     // НЕ закрываем — users.e2e-spec.ts закрывает последним
   });
 
-  // В этих тестах мы проверяем, что список фильмов возвращается корректно, что фильтрация работает, и что авторизация требуется
-  describe('GET /movies', () => {
-    // В этих тестах мы проверяем, что список фильмов возвращается корректно, что фильтрация работает, и что авторизация требуется
-    it('должен вернуть список фильмов для авторизованного пользователя', async () => {
+  // В этих тестах мы проверяем, что список книг возвращается корректно, что фильтрация работает, и что авторизация требуется
+  describe('GET /books', () => {
+    // В этих тестах мы проверяем, что список книг возвращается корректно, что фильтрация работает, и что авторизация требуется
+    it('должен вернуть список книг для авторизованного пользователя', async () => {
       const res = await request(app.getHttpServer())
-        .get('/movies')
+        .get('/books')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(200);
@@ -67,31 +68,32 @@ describe('Movies E2E', () => {
     });
 
     it('должен вернуть 401 без токена', async () => {
-      const res = await request(app.getHttpServer()).get('/movies');
+      const res = await request(app.getHttpServer()).get('/books');
       expect(res.status).toBe(401);
     });
 
     it('должен фильтровать по году', async () => {
-      await prisma.movie.create({
+      await prisma.book.create({
         data: {
-          title: 'Old Movie',
+          title: 'Old Book',
           description: 'Old',
+          author: 'Old Author',
           year: 1999,
           genre: Genre.DRAMA,
         },
       });
 
       const res = await request(app.getHttpServer())
-        .get('/movies?year=2020')
+        .get('/books?year=2020')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.data.every((m: any) => m.year === 2020)).toBe(true); // ← .data
+      expect(res.body.data.every((b: any) => b.year === 2020)).toBe(true); // ← .data
     });
 
     it('должен искать по названию (без учёта регистра)', async () => {
       const res = await request(app.getHttpServer())
-        .get('/movies?title=test')
+        .get('/books?title=test')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(200);
@@ -100,46 +102,47 @@ describe('Movies E2E', () => {
     });
   });
 
-  // В этих тестах мы проверяем, что можно получить фильм по ID, что несуществующий ID возвращает 404, что только админ может создавать фильмы, и что только админ может удалять фильмы
-  describe('GET /movies/:id', () => {
-    it('должен вернуть фильм по ID', async () => {
+  // В этих тестах мы проверяем, что можно получить книгу по ID, что несуществующий ID возвращает 404, что только админ может создавать книги, и что только админ может удалять книги
+  describe('GET /books/:id', () => {
+    it('должен вернуть книгу по ID', async () => {
       const res = await request(app.getHttpServer())
-        .get(`/movies/${movieId}`)
+        .get(`/books/${bookId}`)
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.title).toBe('Test Movie');
-      expect(res.body.id).toBe(movieId);
+      expect(res.body.title).toBe('Test Book');
+      expect(res.body.id).toBe(bookId);
     });
 
     it('должен вернуть 404 для несуществующего ID', async () => {
       // ← 404 вместо null
       const res = await request(app.getHttpServer())
-        .get('/movies/00000000-0000-0000-0000-000000000000')
+        .get('/books/00000000-0000-0000-0000-000000000000')
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(404);
     });
   });
 
-  // В этих тестах мы проверяем, что только админ может создавать фильмы, что только админ может удалять фильмы, и что при создании фильма с невалидными данными возвращается 400
-  describe('POST /movies', () => {
-    it('ADMIN должен создать фильм', async () => {
+  // В этих тестах мы проверяем, что только админ может создавать книги, что только админ может удалять книги, и что при создании книги с невалидными данными возвращается 400
+  describe('POST /books', () => {
+    it('ADMIN должен создать книгу', async () => {
       const res = await request(app.getHttpServer())
-        .post('/movies')
+        .post('/books')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({
-          title: 'New Film',
-          description: 'A great film',
+          title: 'New Book',
+          description: 'A great book',
+          author: 'New Author',
           year: 2024,
           genre: Genre.SCI_FI,
         });
 
       expect(res.status).toBe(201);
-      expect(res.body.title).toBe('New Film');
+      expect(res.body.title).toBe('New Book');
       expect(res.body.id).toBeDefined();
 
-      const inDb = await prisma.movie.findUnique({
+      const inDb = await prisma.book.findUnique({
         where: { id: res.body.id },
       });
       expect(inDb).not.toBeNull();
@@ -147,11 +150,12 @@ describe('Movies E2E', () => {
 
     it('обычный USER должен получить 403', async () => {
       const res = await request(app.getHttpServer())
-        .post('/movies')
+        .post('/books')
         .set('Authorization', `Bearer ${userToken}`)
         .send({
           title: 'Hack',
           description: 'x',
+          author: 'Hacker',
           year: 2020,
           genre: Genre.ACTION,
         });
@@ -160,9 +164,10 @@ describe('Movies E2E', () => {
     });
 
     it('без токена должен получить 401', async () => {
-      const res = await request(app.getHttpServer()).post('/movies').send({
+      const res = await request(app.getHttpServer()).post('/books').send({
         title: 'Anon',
         description: 'x',
+        author: 'Anonymous',
         year: 2020,
         genre: Genre.ACTION,
       });
@@ -172,7 +177,7 @@ describe('Movies E2E', () => {
 
     it('ADMIN должен получить 400 при невалидных данных', async () => {
       const res = await request(app.getHttpServer())
-        .post('/movies')
+        .post('/books')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ title: 'Missing Fields' });
 
@@ -180,22 +185,22 @@ describe('Movies E2E', () => {
     });
   });
 
-  // В этих тестах мы проверяем, что только админ может удалять фильмы, и что при удалении фильма он действительно удаляется из базы данных
-  describe('DELETE /movies/:id', () => {
-    it('ADMIN должен удалить фильм', async () => {
+  // В этих тестах мы проверяем, что только админ может удалять книги, и что при удалении книги она действительно удаляется из базы данных
+  describe('DELETE /books/:id', () => {
+    it('ADMIN должен удалить книгу', async () => {
       const res = await request(app.getHttpServer())
-        .delete(`/movies/${movieId}`)
+        .delete(`/books/${bookId}`)
         .set('Authorization', `Bearer ${adminToken}`);
 
       expect(res.status).toBe(200);
 
-      const inDb = await prisma.movie.findUnique({ where: { id: movieId } });
+      const inDb = await prisma.book.findUnique({ where: { id: bookId } });
       expect(inDb).toBeNull();
     });
 
     it('обычный USER должен получить 403', async () => {
       const res = await request(app.getHttpServer())
-        .delete(`/movies/${movieId}`)
+        .delete(`/books/${bookId}`)
         .set('Authorization', `Bearer ${userToken}`);
 
       expect(res.status).toBe(403);

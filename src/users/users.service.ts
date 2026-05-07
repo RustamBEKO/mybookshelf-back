@@ -75,7 +75,7 @@ export class UsersService {
             rating: true,
             comment: true,
             createdAt: true,
-            movie: { select: { id: true, title: true } },
+            book: { select: { id: true, title: true } },
           },
           orderBy: { createdAt: 'desc' },
         },

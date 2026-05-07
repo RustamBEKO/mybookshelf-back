@@ -9,7 +9,7 @@ import {
 import { Type } from 'class-transformer';
 import { Genre } from 'src/generated/prisma/enums';
 
-export class QueryMoviesDto {
+export class QueryBooksDto {
   // --- PAGINATION ---
   @IsOptional()
   @Type(() => Number) // converts query string "2" → number 2
