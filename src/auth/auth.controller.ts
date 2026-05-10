@@ -7,7 +7,6 @@ import {
   Post,
   Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
@@ -15,10 +14,8 @@ import { LoginRequest } from './dto/login.dto';
 import type { Request, Response } from 'express';
 import { ApiResponse } from '@nestjs/swagger';
 import { ApiOperation } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { Authorization } from './decorators/authorization.decorator';
 import { Authorized } from './decorators/authorized.decorator';
-import { User } from 'src/users/entities/user.entity';
 import { Public } from './decorators/public.decorator';
 
 @Controller('auth')

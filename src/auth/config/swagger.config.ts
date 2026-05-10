@@ -2,10 +2,10 @@ import { DocumentBuilder } from '@nestjs/swagger';
 
 export function getSwaggerConfig() {
   return new DocumentBuilder()
-    .setTitle('Movie API')
-    .setDescription('API для управления фильмами и отзывами')
+    .setTitle('MyBookshelf API')
+    .setDescription('API для управления книгами и отзывами')
     .setVersion('1.0.0')
-    .addTag('movies')
+    .addTag('books')
     .addTag('reviews')
     .addTag('users')
     .addBearerAuth()
